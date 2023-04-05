@@ -1,7 +1,7 @@
-constmongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 //La méthode  Schema  de Mongoose nous permet de créer un schéma de données pour notre base de données MongoDB.
-const sauceSchema = mongoose.schema({
+const sauceSchema = mongoose.Schema({
             //— l'identifiant MongoDB unique de l'utilisateur qui a créé la sauce
 
             userId: { type: String, required: true },

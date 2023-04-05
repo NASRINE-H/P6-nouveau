@@ -1,19 +1,21 @@
 //ce fichier contient la logique de routing
 const express = require('express');
+const auth = require('../middleware/auth');
 //La méthodeexpress.Router() nous permet de créer des routeurs séparés pour chaque route principale de notre application
 const router = express.Router();
-const Sauce = require('.../models/sauce')
 
+
+const multer = require('../middleware/multer-config')
 const sauceCtrl = require('../controllers/sauce');
 
-router.post('/', sauceCtrl.creatSauce);
+router.post('/', auth, multer, sauceCtrl.creatSauce);
 
-router.get('/:id', sauceCtrl.getOneSauce);
+router.get('/:id', auth, sauceCtrl.getOneSauce);
 
-router.get('/', sauceCtrl.getAllSauce);
+router.get('/', auth, sauceCtrl.getAllSauce);
 
-router.put('/:id', sauceCtrl.modifySauce);
+router.put('/:id', auth, multer, sauceCtrl.modifySauce);
 
-router.delete('/:id', sauceCtrl.deleteSauce);
-app.use('/api/sauce', sauceRoutes);
+router.delete('/:id', auth, sauceCtrl.deleteSauce);
+
 module.exports = router;

@@ -1,12 +1,17 @@
 //ce fichier contient la logique de métier
-
+const Sauce = require('../models/sauce');
 exports.creatSauce = (req, res, next) => {
     //supprimé en amont le faux_id envoyé par le front-end
-    delete req.body._id;
+    //on suprime id parceque va etre generer pas BDD
+    delete sauceObject._id;
+    //on suprime userId qui a créé l'objet parceque il faut jamais fair confinace au clients et on utilse le userId qui vien de token
+    delete sauceObject._userId;
     const sauce = new Sauce({
         //L'opérateur spread ... est utilisé pour faire une copie 
         //de tous les éléments de req.body
-        ...req.body
+        ...sauceObject,
+        userId: req.auth.userId,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
     // méthode save() qui enregistre simplement votre Thing dans la base de données.
     sauce.save()
@@ -28,20 +33,32 @@ exports.getAllSauce = (req, res, next) => {
         .then(sauces => res.status(200).json(sauces))
         .catch(error => res.status(400).json({ error }));
 };
+//L'opérateur spread ... est utilisé pour faire une copie 
+//de tous les éléments de req.body
 
+//updateOne()  nous permet de mettre à jour la sauce
+//req.body c'est la nouvelle version de l'objet et _id pour qu'on soit sur c'est le meme identifiant qui existe dans la route 
+//nous devons utiliser le paramètre id de la requête pour configurer notre sauce avec le même _id qu'avant.
 exports.modifySauce = (req, res, next) => {
+    const sauceObject = req.file ? {
+        ...JSON.parse(req.body.thing),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : {...req.body };
 
-    const sauce = new Sauce({
-        //L'opérateur spread ... est utilisé pour faire une copie 
-        //de tous les éléments de req.body
-        ...req.body
-    });
-    //updateOne()  nous permet de mettre à jour la sauce
-    //req.body c'est la nouvelle version de l'objet et _id pour qu'on soit sur c'est le meme identifiant qui existe dans la route 
-    //nous devons utiliser le paramètre id de la requête pour configurer notre sauce avec le même _id qu'avant.
-    Sauce.updateOne({ _id: req.params.id }, sauce)
-        .then(() => res.status(200).json({ message: 'Sauce modifié !' }))
-        .catch(error => res.status(400).json({ error: error }));
+    delete sauceObject._userId;
+    Sauce.findOne({ _id: req.params.id })
+        .then((sauce) => {
+            if (sauce.userId != req.auth.userId) {
+                res.status(401).json({ message: 'Not authorized' });
+            } else {
+                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
+                    .then(() => res.status(200).json({ message: 'sauce modifié!' }))
+                    .catch(error => res.status(401).json({ error }));
+            }
+        })
+        .catch((error) => {
+            res.status(400).json({ error });
+        });
 };
 
 exports.deleteSauce = (req, res, next) => {

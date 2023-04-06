@@ -1,9 +1,11 @@
-// dans ce fichier on va placer notre application expressconst express = require('express');
-
+const { createProxyMiddleware } = require('http-proxy-middleware');
+// dans ce fichier on va placer notre application expressconst express = require('express ');
 const express = require('express');
+
 //la methode express() pour créer une application express
 const app = express();
 const path = require('path');
+const helmet = require('helmet');
 
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
@@ -43,12 +45,19 @@ app.use((req, res, next) => {
 
     next();
 });
+const apiProxy = createProxyMiddleware('/api', {
+    target: 'http://localhost:4200',
+    changeOrigin: true,
+});
 
 
 
-app.use('/api/sauce', sauceRoutes);
+app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(helmet());
+app.use('/api', apiProxy);
+
 
 module.exports = app;
 

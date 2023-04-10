@@ -14,11 +14,16 @@ exports.creatSauce = (req, res, next) => {
         ...sauceObject,
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        likes: 0,
+        dislikes: 0,
+        usersLiked: [],
+        usersDisliked: []
+
     });
-    // méthode save() qui enregistre simplement votre Thing dans la base de données.
+    // méthode save() qui enregistre simplement notre sauce  dans la base de données.
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce enregistré !' }))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => res.status(400).json({ error: error }));
 };
 
 exports.getOneSauce = (req, res, next) => {
@@ -43,7 +48,7 @@ exports.getAllSauces = (req, res, next) => {
 //nous devons utiliser le paramètre id de la requête pour configurer notre sauce avec le même _id qu'avant.
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
-        ...JSON.parse(req.body.thing),
+        ...JSON.parse(req.body.sauce),
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body };
 
@@ -81,3 +86,83 @@ exports.deleteSauce = (req, res, next) => {
             res.status(500).json({ error });
         });
 };
+
+exports.likeDislikeSauce = (req, res, next) => {
+    const like = req.body.like
+    const sauceId = req.params.id
+    const userId = req.body.userId
+
+    Sauce.findOne({ _id: req.params.id })
+        .then(sauce => {
+            //Si like est = 1, le user aime
+            const userliked = checkUser(sauce.usersLiked, userId);
+            const userDisliked = checkUser(sauce.usersDisliked, userId);
+            switch (like) {
+                case (1):
+                    // on teste le cas où on a reçu un like =1
+                    // on vérifie si l'utilisateur
+                    // Premier like de l'utilisateur
+                    if (!(userliked || userDisliked)) {
+                        //let likes = sauce.likes ? sauce.likes : 0;
+                        sauce.likes += 1;
+                        sauce.usersLiked.push(userId);
+                    } else {
+                        // l'utilisateur a déjà likeé
+                        // On veut éviter like multiple
+
+                        throw new Error("On ne peut liker une sauce qu'une seule fois");
+                    }
+                    break;
+                case (-1):
+                    // Premier dislike de l'utilisateur
+                    if (!(userliked || userDisliked)) {
+                        //let dislikes = sauce.dislikes ? sauce.dislikes : 0;
+                        sauce.dislikes += 1;;
+                        sauce.usersDisliked.push(userId);
+                    } else {
+                        // l'utilisateur a déjà likeé
+                        // On veut éviter like multiple
+                        throw new Error("On ne peut disliker une sauce qu'une seule fois");
+                    }
+                    break;
+                case (0):
+                    //on vérifie le userId dans le tableau usersLiked
+
+                    if (userliked) {
+                        //retire son like
+                        sauce.likes -= 1;
+                        //on retire le userid du tableau usersLiked
+                        sauce.usersLiked = createNewUserIdArray(sauce.usersLiked, userId);
+                    } else {
+                        //on cherche dans le tableau des usersDisliked
+
+                        if (userDisliked) {
+                            //retire son dislike
+                            sauce.dislikes -= 1;
+                            //on retire le userid du tableau usersLiked
+                            sauce.usersDisliked = createNewUserIdArray(sauce.usersDisliked, userId);
+                        }
+                    }
+                    break;
+            }
+
+
+            //Sauvegarde la sauce modifié dans la base de données mongoDB
+            sauce.save()
+                //retour promise status OK
+                .then(() => res.status(201).json({ message: "choix appliqué" }))
+                //retour erreur requète
+                .catch(error => res.status(400).json({ error }));
+
+        })
+        .catch(error => res.status(500).json({ error: error.message }));
+}
+
+function checkUser(userIdArray, userId) {
+    return userIdArray.find(id => id === userId);
+
+}
+
+function createNewUserIdArray(userIdArray, userId) {
+    return userIdArray.filter(id => id !== userId);
+}

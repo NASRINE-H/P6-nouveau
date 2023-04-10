@@ -5,7 +5,7 @@ const sauceSchema = mongoose.Schema({
             //— l'identifiant MongoDB unique de l'utilisateur qui a créé la sauce
 
             userId: { type: String, required: true },
-            //— nom de la sauce
+            //nom de la sauce
             name: { type: String, required: true },
             //fabricant de la sauce
             manufacturer: { type: String, required: true },
@@ -19,17 +19,17 @@ const sauceSchema = mongoose.Schema({
             //nombre entre 1 et 10 décrivant la sauce
             heat: { type: Number, required: true },
             //nombre d'utilisateurs qui aiment  la sauce
-            // likes: { type: Number, required: true },
+            likes: { type: Number },
             // nombre d'utilisateurs qui n'aiment pas ) la sauce
-            // dislikes: { type: String, required: true },
+            dislikes: { type: Number },
             //tableau des identifiants des utilisateurs qui ont aimé( liked) la sauce
 
-            // usersLiked: { type: [String] },
+            usersLiked: { type: [String] },
             //tableau des identifiants des utilisateurs qui n'ont pas aimé (disliked) la sauce
 
-            //usersDisliked: {
-            //type: [String]
-            //}
+            usersDisliked: {
+                type: [String]
+            },
         }
 
 

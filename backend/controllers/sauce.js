@@ -88,81 +88,79 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 exports.likeDislikeSauce = (req, res, next) => {
-    const like = req.body.like
-    const sauceId = req.params.id
-    const userId = req.body.userId
-
+    console.log("je suis dans le controller ");
+    //récuperer le body de la requete qui sera envoyé par le body sous format json avec 2 proprieté userId et like 
+    console.log("contenu req body.userId", req.body.like);
+    //récuperer l'id de la sauce correspondante dans la BDD
+    console.log("controller", { _id: req.params.id });
+    //récupérer la sauce dans la BDD 
     Sauce.findOne({ _id: req.params.id })
-        .then(sauce => {
-            //Si like est = 1, le user aime
-            const userliked = checkUser(sauce.usersLiked, userId);
-            const userDisliked = checkUser(sauce.usersDisliked, userId);
-            switch (like) {
-                case (1):
-                    // on teste le cas où on a reçu un like =1
-                    // on vérifie si l'utilisateur
-                    // Premier like de l'utilisateur
-                    if (!(userliked || userDisliked)) {
-                        //let likes = sauce.likes ? sauce.likes : 0;
-                        sauce.likes += 1;
-                        sauce.usersLiked.push(userId);
-                    } else {
-                        // l'utilisateur a déjà likeé
-                        // On veut éviter like multiple
+        .then((sauce) => {
+            console.log(sauce);
+            //like=1(likes = +1)
+            //utilisation de la méthode javascript includes() /La méthode includes() permet de déterminer si un tableau contient une valeur et renvoie true si c'est le cas, false sinon.
+            //utilisation de l'opération $inc
+            //utilisation de l'opération $push
+            //utilisation de l'opération $pull
 
-                        throw new Error("On ne peut liker une sauce qu'une seule fois");
-                    }
-                    break;
-                case (-1):
-                    // Premier dislike de l'utilisateur
-                    if (!(userliked || userDisliked)) {
-                        //let dislikes = sauce.dislikes ? sauce.dislikes : 0;
-                        sauce.dislikes += 1;;
-                        sauce.usersDisliked.push(userId);
-                    } else {
-                        // l'utilisateur a déjà likeé
-                        // On veut éviter like multiple
-                        throw new Error("On ne peut disliker une sauce qu'une seule fois");
-                    }
-                    break;
-                case (0):
-                    //on vérifie le userId dans le tableau usersLiked
-
-                    if (userliked) {
-                        //retire son like
-                        sauce.likes -= 1;
-                        //on retire le userid du tableau usersLiked
-                        sauce.usersLiked = createNewUserIdArray(sauce.usersLiked, userId);
-                    } else {
-                        //on cherche dans le tableau des usersDisliked
-
-                        if (userDisliked) {
-                            //retire son dislike
-                            sauce.dislikes -= 1;
-                            //on retire le userid du tableau usersLiked
-                            sauce.usersDisliked = createNewUserIdArray(sauce.usersDisliked, userId);
-                        }
-                    }
-                    break;
+            //si le userId est n'existe pas dans le tableau userliked/userdisliked et si like ===1
+            if (!(sauce.usersLiked.includes(req.body.userId) || sauce.usersDisliked.includes(req.body.userId)) && (req.body.like === 1)) {
+                console.log("userId n'est pas dans usersLiked BDD et requete front like a 1")
+                    //mis a jour BDD
+                Sauce.updateOne({ _id: req.params.id }, {
+                        //L' $inc opérateur incrémente un champ d'une valeur spécifiée
+                        $inc: { likes: 1 },
+                        //Le $push L'opérateur ajoute une valeur spécifiée à un tableau.
+                        $push: { usersLiked: req.body.userId }
+                    })
+                    .then(() => res.status(201).json({ message: "vous avez liké +1" }))
+                    .catch((error) => res.status(400).json({ error }));
             }
+            //like=0 (si on veut enlever le like)
+            else if (sauce.usersLiked.includes(req.body.userId) && req.body.like === 0) {
+                console.log("like=0");
+                //mise a jour BDD
+                Sauce.updateOne({ _id: req.params.id }, {
+                        //L' $inc opérateur incrémente un champ d'une valeur spécifiée
+                        $inc: { likes: -1 },
+                        //Le $pull L 'opérateur supprime d'un tableau existant toutes les instances d 'une valeur ou de valeurs qui correspondent à une condition spécifiée.
+                        $pull: { usersLiked: req.body.userId }
+                    })
+                    .then(() => res.status(201).json({ message: "vous avez liké 0" }))
+                    .catch((error) => res.status(400).json({ error }));
+
+            } // si userId fait dislike
+            else if (!(sauce.usersLiked.includes(req.body.userId) || sauce.usersDisliked.includes(req.body.userId)) && req.body.like === -1) {
+                console.log("userId n'est pas dans usersDisLiked BDD et requete front dislike = 1")
+                    //mis a jour BDD
+                Sauce.updateOne({ _id: req.params.id }, {
+                        //L' $inc opérateur incrémente un champ d'une valeur spécifiée
+                        $inc: { dislikes: 1 },
+                        //Le $push L'opérateur ajoute une valeur spécifiée à un tableau.
+                        $push: { usersDisliked: req.body.userId }
+                    })
+                    .then(() => res.status(201).json({ message: "vous avez disliké +1" }))
+                    .catch((error) => res.status(400).json({ error }));
 
 
-            //Sauvegarde la sauce modifié dans la base de données mongoDB
-            sauce.save()
-                //retour promise status OK
-                .then(() => res.status(201).json({ message: "choix appliqué" }))
-                //retour erreur requète
-                .catch(error => res.status(400).json({ error }));
+            } else if (sauce.usersDisliked.includes(req.body.userId) && req.body.like === 0) {
+                console.log("like=0");
+                //mise a jour BDD
+                Sauce.updateOne({ _id: req.params.id }, {
+                        //L' $inc opérateur incrémente un champ d'une valeur spécifiée
+                        $inc: { dislikes: -1 },
+                        //Le $pull L 'opérateur supprime d'un tableau existant toutes les instances d 'une valeur ou de valeurs qui correspondent à une condition spécifiée.
+                        $pull: { usersDisliked: req.body.userId }
+                    })
+                    .then(() => res.status(201).json({ message: "vous avez liké 0" }))
+                    .catch((error) => res.status(400).json({ error }));
 
+            } else {
+                console.log("userId existe deja , il ne peux pas faire like qu'une seule fois")
+                throw error = new Error("opération non autorisée");
+            }
         })
-        .catch(error => res.status(500).json({ error: error.message }));
-}
-
-function checkUser(userIdArray, userId) {
-    return userIdArray.find(id => id === userId);
-
-}
-
-function createNewUserIdArray(userIdArray, userId) {
-    return userIdArray.filter(id => id !== userId);
+        .catch((error) => res.status(404).json({
+            error: "On ne peut liker une sauce qu'une seule fois"
+        }));
 }

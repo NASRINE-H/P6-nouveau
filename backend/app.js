@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-//Le package Mongoose facilite les interactions entre votre application Express et votre base de données MongoDB.
+//Le package Mongoose facilite les interactions entre  l'application Express et la base de données MongoDB.
 const mongoose = require('mongoose');
 
 //est une méthode middleware dans le framework web Express de Node.js qui permet de traiter les données JSON

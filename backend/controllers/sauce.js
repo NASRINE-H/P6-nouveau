@@ -3,8 +3,8 @@ const Sauce = require('../models/sauce');
 const fs = require('fs');
 exports.creatSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    //supprimé en amont le faux_id envoyé par le front-end
-    //on suprime id parceque va etre generer pas BDD
+
+    //on suprime _id parceque va etre generer par BDD
     delete sauceObject._id;
     //on suprime userId qui a créé l'objet parceque il faut jamais fair confinace au clients et on utilse le userId qui vien de token
     delete sauceObject._userId;
@@ -20,15 +20,16 @@ exports.creatSauce = (req, res, next) => {
         usersDisliked: []
 
     });
-    // méthode save() qui enregistre simplement notre sauce  dans la base de données.
+    // méthode save() enregistre  notre sauce  dans la base de données.
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce enregistré !' }))
         .catch(error => res.status(400).json({ error: error }));
 };
 
 exports.getOneSauce = (req, res, next) => {
-    //findOne()  retourne une seul sauce basé sur la fonction de comparaison qu'on lui passe 
 
+    //fondOne utilisée pour chercher un seul document dans une collection MongoDB en fonction de critères de recherche spécifiés
+    //req.params.id permettra d'accéder à la valeur de l'ID de l'article demandé par l'utilisateur.
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(404).json({ error: error }));
@@ -40,8 +41,7 @@ exports.getAllSauces = (req, res, next) => {
         .then(sauces => res.status(200).json(sauces))
         .catch(error => res.status(400).json({ error }));
 };
-//L'opérateur spread ... est utilisé pour faire une copie 
-//de tous les éléments de req.body
+
 
 //updateOne()  nous permet de mettre à jour la sauce
 //req.body c'est la nouvelle version de l'objet et _id pour qu'on soit sur c'est le meme identifiant qui existe dans la route 

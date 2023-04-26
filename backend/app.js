@@ -1,6 +1,7 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 // dans ce fichier on va placer notre application expressconst express = require('express ');
 const express = require('express');
+require('dotenv').config();
 
 //la methode express() pour créer une application express
 const app = express();
@@ -23,7 +24,7 @@ app.use(express.json());
 // avec MySQL étant une base de données relationnelle classique avec des tables,
 //des colonnes et des relations, tandis que MongoDB est une base de données orientée 
 //document qui stocke des données sous forme de documents JSON sans schéma prédéfini.
-mongoose.connect('mongodb+srv://ines:BWv0UXB98mN5aD4O@cluster0.yddovd8.mongodb.net/?retryWrites=true&w=majority', {
+mongoose.connect(process.env.DB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })

@@ -30,9 +30,6 @@ const sauceSchema = mongoose.Schema({
             usersDisliked: { type: [String] }
         }
 
-
-
-
     )
     //La méthode  model  transforme ce modèle en un modèle utilisable.
 module.exports = mongoose.model('Sauce', sauceSchema);

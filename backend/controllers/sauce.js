@@ -1,6 +1,8 @@
 //ce fichier contient la logique de métier
 const Sauce = require('../models/sauce');
 const fs = require('fs');
+
+
 exports.creatSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
 
@@ -104,53 +106,53 @@ exports.likeDislikeSauce = (req, res, next) => {
             //utilisation de l'opération $pull
 
             //si le userId est n'existe pas dans le tableau userliked/userdisliked et si like ===1
-            if (!(sauce.usersLiked.includes(req.body.userId) || sauce.usersDisliked.includes(req.body.userId)) && (req.body.like === 1)) {
+            if (!(sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) && (req.body.like === 1)) {
                 console.log("userId n'est pas dans usersLiked BDD et requete front like a 1")
                     //mis a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
                         $inc: { likes: 1 },
                         //Le $push L'opérateur ajoute une valeur spécifiée à un tableau.
-                        $push: { usersLiked: req.body.userId }
+                        $push: { usersLiked: req.auth.userId }
                     })
                     .then(() => res.status(201).json({ message: "vous avez liké +1" }))
                     .catch((error) => res.status(400).json({ error }));
             }
             //like=0 (si on veut enlever le like)
-            else if (sauce.usersLiked.includes(req.body.userId) && req.body.like === 0) {
+            else if (sauce.usersLiked.includes(req.auth.userId) && req.body.like === 0) {
                 console.log("like=0");
                 //mise a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
                         $inc: { likes: -1 },
                         //Le $pull L 'opérateur supprime d'un tableau existant toutes les instances d 'une valeur ou de valeurs qui correspondent à une condition spécifiée.
-                        $pull: { usersLiked: req.body.userId }
+                        $pull: { usersLiked: req.auth.userId }
                     })
                     .then(() => res.status(201).json({ message: "vous avez liké 0" }))
                     .catch((error) => res.status(400).json({ error }));
 
             } // si userId fait dislike
-            else if (!(sauce.usersLiked.includes(req.body.userId) || sauce.usersDisliked.includes(req.body.userId)) && req.body.like === -1) {
+            else if (!(sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) && req.body.like === -1) {
                 console.log("userId n'est pas dans usersDisLiked BDD et requete front dislike = 1")
                     //mis a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
                         $inc: { dislikes: 1 },
                         //Le $push L'opérateur ajoute une valeur spécifiée à un tableau.
-                        $push: { usersDisliked: req.body.userId }
+                        $push: { usersDisliked: req.auth.userId }
                     })
                     .then(() => res.status(201).json({ message: "vous avez disliké +1" }))
                     .catch((error) => res.status(400).json({ error }));
 
 
-            } else if (sauce.usersDisliked.includes(req.body.userId) && req.body.like === 0) {
+            } else if (sauce.usersDisliked.includes(req.auth.userId) && req.body.like === 0) {
                 console.log("like=0");
                 //mise a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
                         $inc: { dislikes: -1 },
                         //Le $pull L 'opérateur supprime d'un tableau existant toutes les instances d 'une valeur ou de valeurs qui correspondent à une condition spécifiée.
-                        $pull: { usersDisliked: req.body.userId }
+                        $pull: { usersDisliked: req.auth.userId }
                     })
                     .then(() => res.status(201).json({ message: "vous avez liké 0" }))
                     .catch((error) => res.status(400).json({ error }));

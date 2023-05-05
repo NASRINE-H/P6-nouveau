@@ -11,7 +11,7 @@ const sauceSchema = mongoose.Schema({
             manufacturer: { type: String, required: true },
             //description de la sauce
 
-            description: { type: String, required: true },
+            description: { type: String, required: false },
             //le principal ingrédient épicé de la sauce
             mainPepper: { type: String, required: true },
             //l'URL de l'image de la sauce téléchargée par l'utilisateur

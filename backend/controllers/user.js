@@ -41,6 +41,7 @@ exports.login = (req, res, next) => {
                         } else {
                             res.status(200).json({
                                 userId: user._id,
+                                //la fonction sign pour chiffrer un nouveau token
                                 token: jwt.sign({
                                         userId: user._id
                                     },

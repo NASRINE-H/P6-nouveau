@@ -58,15 +58,17 @@ exports.modifySauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
             if (sauce.userId != req.auth.userId) {
-                res.status(401).json({ message: 'Not authorized' });
+                res.status(401).json({ message: 'Modification non autorisée' });
             } else {
+
+
                 Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
                     .then(() => res.status(200).json({ message: 'Sauce modifié!' }))
-                    .catch(error => res.status(401).json({ error }));
+                    .catch(() => res.status(401).json({ error: "modification impossible" }));
             }
         })
         .catch((error) => {
-            res.status(400).json({ error });
+            res.status(400).json({ error: "Sauce introuvable" });
         });
 };
 

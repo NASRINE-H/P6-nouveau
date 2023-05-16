@@ -14,6 +14,7 @@ exports.creatSauce = (req, res, next) => {
         //L'opérateur spread ... est utilisé pour faire une copie 
         //de tous les éléments de req.body
         ...sauceObject,
+
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         likes: 0,
@@ -51,9 +52,10 @@ exports.getAllSauces = (req, res, next) => {
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
+        // heat: req.body.sauce.heat,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body };
-
+    //La propriété _userId de sauceObject est supprimée pour éviter que l'utilisateur modifie cette valeur lors de la mise à jour de la sauce.
     delete sauceObject._userId;
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
@@ -62,11 +64,12 @@ exports.modifySauce = (req, res, next) => {
             } else {
 
 
-                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
+                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id }, { runValidators: true })
                     .then(() => res.status(200).json({ message: 'Sauce modifié!' }))
                     .catch(() => res.status(401).json({ error: "modification impossible" }));
             }
         })
+        //Si la recherche de la sauce spécifique échoue, une réponse avec le statut 400 est renvoyée avec un message indiquant que la sauce est introuvable.
         .catch((error) => {
             res.status(400).json({ error: "Sauce introuvable" });
         });

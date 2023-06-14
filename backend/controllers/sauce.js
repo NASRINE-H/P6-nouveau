@@ -52,11 +52,13 @@ exports.getAllSauces = (req, res, next) => {
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
-        // heat: req.body.sauce.heat,
+
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body };
     //La propriété _userId de sauceObject est supprimée pour éviter que l'utilisateur modifie cette valeur lors de la mise à jour de la sauce.
     delete sauceObject._userId;
+    //la fonction Sauce.findOne() est utilisée pour rechercher la sauce correspondant 
+    //à l'identifiant req.params.id. Cela permet de vérifier si la sauce existe avant de la modifier.
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
             if (sauce.userId != req.auth.userId) {
@@ -64,9 +66,11 @@ exports.modifySauce = (req, res, next) => {
             } else {
 
 
-                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id }, { runValidators: true })
+                Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id }, { runValidators: true }) // est utilisée pour exécuter
+                    //les validations définies pour le modèle de la sauce lors de la mise à jour.
+                    // Cela garantit que les contraintes de validation sont respectées.
                     .then(() => res.status(200).json({ message: 'Sauce modifié!' }))
-                    .catch(() => res.status(401).json({ error: "modification impossible" }));
+                    .catch(() => res.status(403).json({ error: "modification impossible" }));
             }
         })
         //Si la recherche de la sauce spécifique échoue, une réponse avec le statut 400 est renvoyée avec un message indiquant que la sauce est introuvable.

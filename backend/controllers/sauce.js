@@ -73,7 +73,8 @@ exports.modifySauce = (req, res, next) => {
                     .catch(() => res.status(403).json({ error: "modification impossible" }));
             }
         })
-        //Si la recherche de la sauce spécifique échoue, une réponse avec le statut 400 est renvoyée avec un message indiquant que la sauce est introuvable.
+        //Si la recherche de la sauce spécifique échoue, une réponse avec le statut 400 est renvoyée avec un message 
+        //indiquant que la sauce est introuvable.
         .catch((error) => {
             res.status(400).json({ error: "Sauce introuvable" });
         });
@@ -99,25 +100,26 @@ exports.deleteSauce = (req, res, next) => {
 };
 
 exports.likeDislikeSauce = (req, res, next) => {
-    console.log("je suis dans le controller ");
+    //console.log("je suis dans le controller ");
     //récuperer le body de la requete qui sera envoyé par le body sous format json avec 2 proprieté userId et like 
-    console.log("contenu req body.userId", req.body.like);
+    //  console.log("contenu req body.userId", req.body.like);
     //récuperer l'id de la sauce correspondante dans la BDD
-    console.log("controller", { _id: req.params.id });
+    // console.log("controller", { _id: req.params.id });
     //récupérer la sauce dans la BDD 
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
-            console.log(sauce);
+            //  console.log(sauce);
             //like=1(likes = +1)
-            //utilisation de la méthode javascript includes() /La méthode includes() permet de déterminer si un tableau contient une valeur et renvoie true si c'est le cas, false sinon.
+            //utilisation de la méthode javascript includes() /La méthode includes() permet de déterminer 
+            //si un tableau contient une valeur et renvoie true si c'est le cas, false sinon.
             //utilisation de l'opération $inc
             //utilisation de l'opération $push
             //utilisation de l'opération $pull
 
             //si le userId est n'existe pas dans le tableau userliked/userdisliked et si like ===1
             if (!(sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) && (req.body.like === 1)) {
-                console.log("userId n'est pas dans usersLiked BDD et requete front like a 1")
-                    //mis a jour BDD
+                //console.log("userId n'est pas dans usersLiked BDD et requete front like a 1")
+                //mis a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
                         $inc: { likes: 1 },
@@ -129,7 +131,7 @@ exports.likeDislikeSauce = (req, res, next) => {
             }
             //like=0 (si on veut enlever le like)
             else if (sauce.usersLiked.includes(req.auth.userId) && req.body.like === 0) {
-                console.log("like=0");
+                // console.log("like=0");
                 //mise a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
@@ -142,8 +144,8 @@ exports.likeDislikeSauce = (req, res, next) => {
 
             } // si userId fait dislike
             else if (!(sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) && req.body.like === -1) {
-                console.log("userId n'est pas dans usersDisLiked BDD et requete front dislike = 1")
-                    //mis a jour BDD
+                // console.log("userId n'est pas dans usersDisLiked BDD et requete front dislike = 1")
+                //mis a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
                         $inc: { dislikes: 1 },
@@ -155,7 +157,7 @@ exports.likeDislikeSauce = (req, res, next) => {
 
 
             } else if (sauce.usersDisliked.includes(req.auth.userId) && req.body.like === 0) {
-                console.log("like=0");
+                // console.log("like=0");
                 //mise a jour BDD
                 Sauce.updateOne({ _id: req.params.id }, {
                         //L' $inc opérateur incrémente un champ d'une valeur spécifiée
@@ -167,11 +169,11 @@ exports.likeDislikeSauce = (req, res, next) => {
                     .catch((error) => res.status(400).json({ error }));
 
             } else {
-                console.log("userId existe deja , il ne peux pas faire like qu'une seule fois")
+                //console.log("userId existe deja , il ne peux pas faire like qu'une seule fois")
                 throw error = new Error("opération non autorisée");
             }
         })
         .catch((error) => res.status(404).json({
-            error: "On ne peut liker une sauce qu'une seule fois"
+            error
         }));
 }

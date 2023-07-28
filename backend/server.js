@@ -1,5 +1,6 @@
 const http = require('http');
 const app = require('./app');
+//(pour la gestion des variables d'environnement).
 require('dotenv').config();
 
 const normalizePort = val => {
@@ -14,11 +15,10 @@ const normalizePort = val => {
     return false;
 };
 
-//la fonction normalizePort renvoie un port valide, qu 'il soit fourni sous la forme d'un numéro ou d 'une chaîne ;
+//la fonction normalizePort renvoie un port valide, qu 'il soit fourni sous la forme d'entier ;
 const port = normalizePort(process.env.PORT ||  '3000');
 app.set('port', port);
-//la fonction errorHandler  recherche les différentes erreurs et les gère de manière appropriée.
-//Elle est ensuite enregistrée dans le serveur;
+//Cette fonction est appelée en cas d'erreur lors de l'écoute du serveur
 const errorHandler = error => {
     if (error.syscall !== 'listen') {
         throw error;
@@ -49,3 +49,6 @@ server.on('listening', () => {
 });
 
 server.listen(port);
+
+//En résumé, ce fichier server.js configure un serveur HTTP qui écoute les requêtes entrantes sur un port spécifié.
+// Il utilise l'application définie dans app.js pour gérer les requêtes, et gère les erreurs potentielles liées à l'écoute du serveur.

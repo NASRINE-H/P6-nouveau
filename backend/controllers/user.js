@@ -1,6 +1,7 @@
 // le package JWT permet de créer les token et les verifier 
 const jwt = require('jsonwebtoken');
-//Bcrypt est une bibliothèque de hachage de mot de passe qui permet de stocker les mots de passe de manière sécurisée.
+//Bcrypt est une bibliothèque de hachage de mot de passe qui permet de stocker 
+//les mots de passe de manière sécurisée.
 // Elle est utilisée pour stocker les mots de passe de manière chiffrée dans une base de données.
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
@@ -8,7 +9,8 @@ const User = require('../models/user');
 exports.signup = (req, res, next) => {
     //on crypte le mot de passe avec la fonction hach qui va hacher le mot de passe 10 fois 
     bcrypt.hash(req.body.password, 10)
-        //on va recupérer le hach de mot de passe qu'on va ensuite l'enregestrer dans un nouveu user qui va etre enregestrer dans la 
+        //on va recupérer le hach de mot de passe qu'on va ensuite l'enregestrer 
+        //dans un nouveu user qui va etre enregestrer dans la 
         //base de donnés / User c'est le modele mongoose/ Save pour sauvgarder l'utilisateur
         .then(hash => {
             const user = new User({

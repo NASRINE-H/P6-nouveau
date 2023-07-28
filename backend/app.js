@@ -1,10 +1,12 @@
 //sera utilisé pour rediriger les requêtes vers le frontend Angular qui sera exécuté sur un autre serveur.
-const { createProxyMiddleware } = require('http-proxy-middleware');
-// dans ce fichier on va placer notre application expressconst express = require('express ');
+//const { createProxyMiddleware } = require('http-proxy-middleware');
+// dans ce fichier on va placer notre application express const express = require('express ');
 const express = require('express');
+const helmet = require("helmet");
 require('dotenv').config();
 //la methode express() pour créer une application express
 const app = express();
+
 const path = require('path');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
@@ -31,16 +33,23 @@ app.use((req, res, next) => {
 // vers le frontend Angular qui sera exécuté sur un autre serveur.
 // La fonction createProxyMiddleware() crée un middleware qui redirige toutes les demandes qui commencent 
 //par "/api" vers le serveur Angular exécuté sur "http://localhost:4200".
-const apiProxy = createProxyMiddleware('/api', {
+/*const apiProxy = createProxyMiddleware('/api', {
     target: 'http://localhost:4200',
     changeOrigin: true,
-});
+});*/
 //La méthode app.use() vous permet d'attribuer un middleware à une route spécifique de votre application.
+// Les routes définissent les points d'entrée de l'API et spécifient les actions à effectuer pour chaque route.
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
+app.use(
+    helmet({
+        crossOriginEmbedderPolicy: false,
+        // ...
+    })
+);
 //Une route statique est également définie pour servir les fichiers image qui seront stockés dans le dossier "images".
 app.use('/images', express.static(path.join(__dirname, 'images')));
-app.use('/api', apiProxy);
+//app.use('/api', apiProxy);
 
 module.exports = app;
 

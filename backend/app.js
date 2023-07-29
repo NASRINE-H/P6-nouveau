@@ -42,6 +42,8 @@ app.use((req, res, next) => {
 // Les routes définissent les points d'entrée de l'API et spécifient les actions à effectuer pour chaque route.
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
+//helmet est un package sécurité pour ton api, il sert a éviter les failles de sécurité classiques,
+// il doit donc être utiliser sur  endpoint, avant de traiter la requetes
 app.use(helmet({
     crossOriginResourcePolicy: false,
     crossOriginEmbedderPolicy: false, // ...

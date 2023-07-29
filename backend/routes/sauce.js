@@ -1,7 +1,7 @@
 //ce fichier contient la logique de routing
 const express = require('express');
 const auth = require('../middleware/auth');
-//La méthodeexpress.Router() nous permet de créer des routeurs séparés pour chaque route principale de notre application
+//La méthode express.Router() nous permet de créer des routeurs séparés pour chaque route principale de notre application
 const router = express.Router();
 
 

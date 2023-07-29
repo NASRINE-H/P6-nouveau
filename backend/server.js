@@ -49,6 +49,3 @@ server.on('listening', () => {
 });
 
 server.listen(port);
-
-//En résumé, ce fichier server.js configure un serveur HTTP qui écoute les requêtes entrantes sur un port spécifié.
-// Il utilise l'application définie dans app.js pour gérer les requêtes, et gère les erreurs potentielles liées à l'écoute du serveur.

@@ -1,8 +1,5 @@
 const passwordValidator = require('password-validator');
-
-
-
-//Schéma de mot de passe plus sécure
+//Schéma de mot de passe 
 const passwordSchema = new passwordValidator();
 // Contraintes du mot de passe
 passwordSchema

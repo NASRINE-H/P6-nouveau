@@ -1,6 +1,7 @@
 //sera utilisé pour rediriger les requêtes vers le frontend Angular qui sera exécuté sur un autre serveur.
 //const { createProxyMiddleware } = require('http-proxy-middleware');
 // dans ce fichier on va placer notre application express const express = require('express ');
+
 const express = require('express');
 const helmet = require("helmet");
 require('dotenv').config();
@@ -41,12 +42,10 @@ app.use((req, res, next) => {
 // Les routes définissent les points d'entrée de l'API et spécifient les actions à effectuer pour chaque route.
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
-app.use(
-    helmet({
-        crossOriginEmbedderPolicy: false,
-        // ...
-    })
-);
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false, // ...
+}));
 //Une route statique est également définie pour servir les fichiers image qui seront stockés dans le dossier "images".
 app.use('/images', express.static(path.join(__dirname, 'images')));
 //app.use('/api', apiProxy);

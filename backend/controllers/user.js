@@ -1,6 +1,6 @@
 // le package JWT permet de créer les token et les verifier 
 const jwt = require('jsonwebtoken');
-//Bcrypt  est utilisée pour stocker les mots de passe de manière chiffrée dans une base de données.
+//Bcrypt  est utilisé pour stocker les mots de passe de manière chiffrée dans une base de données.
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 

@@ -121,9 +121,9 @@ exports.likeDislikeSauce = (req, res, next) => {
             else if (!(sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)) && req.body.like === -1) {
 
                 Sauce.updateOne({ _id: req.params.id }, {
-                        //L' $inc opérateur incrémente un champ d'une valeur spécifiée
+
                         $inc: { dislikes: 1 },
-                        //Le $push L'opérateur ajoute une valeur spécifiée à un tableau.
+
                         $push: { usersDisliked: req.auth.userId }
                     })
                     .then(() => res.status(201).json({ message: "vous avez disliké +1" }))

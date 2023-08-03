@@ -42,31 +42,39 @@ exports.getAllSauces = (req, res, next) => {
 };
 
 
-
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
-
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : {...req.body };
     delete sauceObject._userId;
 
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
-            if (sauce.userId != req.auth.userId) {
+            if (sauce.userId !== req.auth.userId) {
                 res.status(403).json({ message: 'Modification non autorisée' });
             } else {
+                const oldImage = sauce.imageUrl;
 
                 Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id }, { runValidators: true })
+                    .then(() => {
 
-                .then(() => res.status(200).json({ message: 'Sauce modifié!' }))
-                    .catch(() => res.status(403).json({ error: "modification impossible" }));
+                        if (req.file && oldImage) {
+
+                            fs.unlink(`images/${oldImage.split('/').pop()}`, (err) => {
+                                if (err) {
+                                    console.error('Error deleting old image:', err);
+                                }
+                            });
+                        }
+                        res.status(200).json({ message: 'Sauce modifiée !' });
+                    })
+                    .catch(() => res.status(403).json({ error: "Modification impossible" }));
             }
         })
-
-    .catch((error) => {
-        res.status(400).json({ error: "Sauce introuvable" });
-    });
+        .catch((error) => {
+            res.status(400).json({ error: "Sauce introuvable" });
+        });
 };
 
 exports.deleteSauce = (req, res, next) => {

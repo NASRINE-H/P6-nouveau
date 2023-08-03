@@ -4,22 +4,59 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 
+// exports.signup = (req, res, next) => {
+//     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+//     const password = req.body.password;
+//     console.log("avant test")
+//     if (!passwordRegex.test(password)) {
+//         console.log("erreur 2112132132")
+//         return res.status(400).json({
+//             error: 'Mot de passe incorrect : il doit comporter au moins 8 caractères, une lettre majuscule, une lettre minuscule et un chiffre.'
+//         });
+//     } else
+
+
+//     {
+//         console.log("non erreur 2112132132")
+//     }
+//     bcrypt.hash(req.body.password, 10)
+
+//     .then(hash => {
+//             const user = new User({
+//                 email: req.body.email,
+//                 password: hash
+//             });
+//             user.save()
+//                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+//                 .catch(error => res.status(400).json({
+//                     error
+//                 }));
+//         })
+//         .catch(error => res.status(500).json({ error }));
+// };
 exports.signup = (req, res, next) => {
+    // Vérification du mot de passe avec une expression régulière
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    const password = req.body.password;
 
-    bcrypt.hash(req.body.password, 10)
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+            error: 'Mot de passe incorrect : il doit comporter au moins 8 caractères, une lettre majuscule, une lettre minuscule et un chiffre.'
+        });
+    }
 
-    .then(hash => {
+    bcrypt.hash(password, 10)
+        .then(hash => {
             const user = new User({
                 email: req.body.email,
                 password: hash
             });
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-                .catch(error => res.status(400).json({ error }));
+                .catch(error => res.status(500).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
-
 
 exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })

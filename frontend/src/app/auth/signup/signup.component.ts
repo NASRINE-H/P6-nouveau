@@ -30,6 +30,13 @@ export class SignupComponent implements OnInit {
     this.loading = true;
     const email = this.signupForm.get('email')!.value;
     const password = this.signupForm.get('password')!.value;
+     // Ajoutez ici la vérification du mot de passe avant de faire la requête d'inscription
+     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+     if (!passwordRegex.test(password)) {
+       this.loading = false;
+       this.errorMsg = 'Le mot de passe doit comporter au moins 8 caractères, une lettre majuscule, une lettre minuscule et un chiffre.';
+       return;
+     }
     this.auth.createUser(email, password).pipe(
       switchMap(() => this.auth.loginUser(email, password)),
       tap(() => {
